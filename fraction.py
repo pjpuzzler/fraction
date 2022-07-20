@@ -199,9 +199,6 @@ class Fraction:
 
     @staticmethod
     def has_common_denominator(__a: Fraction, __b: Fraction) -> bool:
-        if __a.is_undefined or __b.is_undefined:
-            raise ValueError('Cannot compare undefined fractions')
-
         return __a.denominator == __b.denominator
 
     @staticmethod
@@ -215,10 +212,6 @@ class Fraction:
 
     @staticmethod
     def make_common(__a: Fraction, __b: Fraction) -> tuple[Fraction, Fraction]:
-        if __a.is_undefined or __b.is_undefined:
-            raise ValueError(
-                'Cannot make common fraction with undefined fraction')
-
         if Fraction.has_common_denominator(__a, __b):
             return __a, __b
 
