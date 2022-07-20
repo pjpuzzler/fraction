@@ -2,7 +2,7 @@ from __future__ import annotations
 
 
 class Fraction:
-    def __init__(self, numerator: int, denominator: int = 1, reduce: bool = True) -> None:
+    def __init__(self, numerator: int, denominator: int = 1, reduce: bool = False) -> None:
         if denominator == 0:
             raise ValueError('Denominator cannot be zero')
 
@@ -142,7 +142,7 @@ class Fraction:
 
     def __pow__(self, other: object) -> Fraction | float:
         if isinstance(other, int):
-            return Fraction(self.numerator ** other, self.denominator ** other, False)
+            return Fraction(self.numerator ** other, self.denominator ** other)
 
         if isinstance(other, Fraction):
             return self.value ** other.value
@@ -226,7 +226,7 @@ class Fraction:
             self._numerator = self.numerator * denominator // self.denominator
             self._denominator = denominator
         else:
-            return Fraction(self.numerator * denominator // self.denominator, denominator, False)
+            return Fraction(self.numerator * denominator // self.denominator, denominator)
 
     def reduce(self, inplace: bool = False) -> Fraction | None:
         if inplace:
@@ -248,7 +248,7 @@ class Fraction:
 
     @property
     def fractional_part(self) -> Fraction:
-        return Fraction(self.numerator % self.denominator, self.denominator, False)
+        return Fraction(self.numerator % self.denominator, self.denominator)
 
     @property
     def is_reduced(self) -> bool:
@@ -272,7 +272,7 @@ class Fraction:
 
     @property
     def reciprocal(self) -> Fraction:
-        return Fraction(self.denominator, self.numerator, False)
+        return Fraction(self.denominator, self.numerator)
 
     @property
     def value(self) -> float:
@@ -285,7 +285,7 @@ class Fraction:
         return self.numerator // self.denominator
 
     @classmethod
-    def from_string(cls, fraction_str: str, reduce: bool = True) -> Fraction:
+    def from_string(cls, fraction_str: str, reduce: bool = False) -> Fraction:
         parts = fraction_str.split()
         if len(parts) == 1:
             fraction_parts = parts[0].split('/')
@@ -299,18 +299,18 @@ class Fraction:
 
         if len(parts) == 2:
             try:
-                return cls.from_mixed_number(int(parts[0]), cls.from_string(parts[1], False), reduce)
+                return cls.from_mixed_number(int(parts[0]), cls.from_string(parts[1]), reduce)
             except ValueError:
                 raise ValueError('Invalid fraction string')
 
         raise ValueError('Invalid fraction string')
 
     @classmethod
-    def from_mixed_number(cls, whole_part: int, fractional_part: Fraction, reduce: bool = True) -> Fraction:
+    def from_mixed_number(cls, whole_part: int, fractional_part: Fraction, reduce: bool = False) -> Fraction:
         return Fraction(whole_part * fractional_part.denominator + fractional_part.numerator, fractional_part.denominator, reduce)
 
     @staticmethod
-    def add(a: Fraction, b: Fraction, reduce: bool = True) -> Fraction:
+    def add(a: Fraction, b: Fraction, reduce: bool = False) -> Fraction:
         if Fraction.has_common_denominator(a, b):
             return Fraction(a.numerator + b.numerator, a.denominator, reduce)
 
@@ -324,7 +324,7 @@ class Fraction:
         return Fraction.are_equal(*Fraction.make_common(a, b), True)
 
     @staticmethod
-    def divide(a: Fraction, b: Fraction, reduce: bool = True) -> Fraction:
+    def divide(a: Fraction, b: Fraction, reduce: bool = False) -> Fraction:
         return Fraction.multiply(a, b.reciprocal, reduce)
 
     @staticmethod
@@ -346,14 +346,14 @@ class Fraction:
             return a, b
 
         lcd_ = Fraction.lcd(a, b)
-        return Fraction(a.numerator * lcd_ // a.denominator, lcd_, False), Fraction(b.numerator * lcd_ // b.denominator, lcd_, False)
+        return Fraction(a.numerator * lcd_ // a.denominator, lcd_), Fraction(b.numerator * lcd_ // b.denominator, lcd_)
 
     @staticmethod
-    def multiply(a: Fraction, b: Fraction, reduce: bool = True) -> Fraction:
+    def multiply(a: Fraction, b: Fraction, reduce: bool = False) -> Fraction:
         return Fraction(a.numerator * b.numerator, a.denominator * b.denominator, reduce)
 
     @staticmethod
-    def subtract(a: Fraction, b: Fraction, reduce: bool = True) -> Fraction:
+    def subtract(a: Fraction, b: Fraction, reduce: bool = False) -> Fraction:
         if Fraction.has_common_denominator(a, b):
             return Fraction(a.numerator - b.numerator, a.denominator, reduce)
 
@@ -361,8 +361,8 @@ class Fraction:
 
 
 def main() -> None:
-    frac = Fraction.from_string('-1 1/2')
-    print(frac)
+    frac = Fraction.from_string('4/8')
+    print(frac.is_reduced)
 
 
 if __name__ == '__main__':
