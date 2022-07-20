@@ -13,21 +13,27 @@ class Fraction:
             self._numerator = numerator
             self._denominator = denominator
 
-        self._is_reduced = False
-        self._is_reduced = self.reduce(
-            True) if reduce else Fraction.are_equal(self, self.reduce(), True)
+        if reduce:
+            self.reduce(True)
 
-    def add__(self, other: object) -> Fraction:
+    def __abs__(self) -> Fraction:
+        return Fraction(abs(self.numerator), self.denominator)
+
+    def __add__(self, other: object) -> Fraction:
         if isinstance(other, Fraction):
             return Fraction.add(self, other)
 
         if isinstance(other, int):
-            return self.add__(Fraction(other))
+            return self.__add__(Fraction(other))
 
         return NotImplemented
 
-    def bool__(self) -> bool:
+    def __bool__(self) -> bool:
         return self.numerator != 0
+
+    def __ceil__(self) -> int:
+        from math import ceil
+        return ceil(self.__float__())
 
     def __divmod__(self, other: object) -> tuple[int, Fraction]:
         if isinstance(other, Fraction) or isinstance(other, int):
@@ -49,6 +55,10 @@ class Fraction:
 
     def __float__(self) -> float:
         return self.value
+
+    def __floor__(self) -> int:
+        from math import floor
+        return floor(self.__float__())
 
     def __floordiv__(self, other: object) -> int:
         if isinstance(other, Fraction) or isinstance(other, int):
@@ -124,14 +134,68 @@ class Fraction:
 
         return NotImplemented
 
-    def __pow__(self, power: object) -> Fraction:
-        if isinstance(power, int):
-            return Fraction(self.numerator ** power, self.denominator ** power, False)
+    def __neg__(self) -> Fraction:
+        return Fraction(-self.numerator, self.denominator)
+
+    def __pos__(self) -> Fraction:
+        return Fraction(self.numerator, self.denominator)
+
+    def __pow__(self, other: object) -> Fraction | float:
+        if isinstance(other, int):
+            return Fraction(self.numerator ** other, self.denominator ** other, False)
+
+        if isinstance(other, Fraction):
+            return self.value ** other.value
+
+        return NotImplemented
+
+    def __radd__(self, other: object) -> Fraction:
+        return self.__add__(other)
+
+    def __rdivmod__(self, other: object) -> tuple[int, Fraction]:
+        if isinstance(other, int):
+            return divmod(Fraction(other), self)
 
         return NotImplemented
 
     def __repr__(self) -> str:
         return self.fraction_str
+
+    def __rfloordiv__(self, other: object) -> int:
+        if isinstance(other, int):
+            return Fraction(other) // self
+
+        return NotImplemented
+
+    def __rmod__(self, other: object) -> Fraction:
+        if isinstance(other, int):
+            return Fraction(other) % self
+
+        return NotImplemented
+
+    def __rmul__(self, other: object) -> Fraction:
+        return self.__mul__(other)
+
+    def __round__(self, ndigits: int | None = None) -> int:
+        return round(self.__float__(), ndigits)
+
+    def __rpow__(self, other: object) -> float:
+        if isinstance(other, int):
+            return Fraction(other) ** self
+
+        return NotImplemented
+
+    def __rsub__(self, other: object) -> Fraction:
+        if isinstance(other, int):
+            return Fraction(other) - self
+
+        return NotImplemented
+
+    def __rtruediv__(self, other: object) -> Fraction:
+        if isinstance(other, int):
+            return Fraction(other) / self
+
+        return NotImplemented
 
     def __sub__(self, other: object) -> Fraction:
         if isinstance(other, Fraction):
@@ -151,28 +215,26 @@ class Fraction:
 
         return NotImplemented
 
+    def __trunc__(self) -> int:
+        return self.whole_part
+
     def change_denominator(self, denominator: int, inplace: bool = False) -> Fraction | None:
         if not Fraction.is_valid_denominator(self, denominator):
             raise ValueError('Invalid denominator for this fraction')
 
-        # TODO
         if inplace:
-            pass
+            self._numerator = self.numerator * denominator // self.denominator
+            self._denominator = denominator
         else:
-            pass
+            return Fraction(self.numerator * denominator // self.denominator, denominator, False)
 
-    def reduce(self, inplace: bool = False) -> Fraction | bool:
+    def reduce(self, inplace: bool = False) -> Fraction | None:
         if inplace:
-            if self.is_reduced:
-                return True
-
             from math import gcd
             gcd_ = gcd(self.numerator, self.denominator)
 
             self._numerator = self.numerator // gcd_
             self._denominator = self.denominator // gcd_
-            self._is_reduced = True
-            return gcd_ == 1
         else:
             return Fraction(self.numerator, self.denominator, True)
 
@@ -190,7 +252,7 @@ class Fraction:
 
     @property
     def is_reduced(self) -> bool:
-        return self._is_reduced
+        return Fraction.are_equal(self, self.reduce(), True)
 
     @property
     def is_improper(self) -> bool:
@@ -218,6 +280,8 @@ class Fraction:
 
     @property
     def whole_part(self) -> int:
+        if self.numerator < 0:
+            return -(-self.numerator // self.denominator)
         return self.numerator // self.denominator
 
     @classmethod
@@ -252,7 +316,7 @@ class Fraction:
 
     @staticmethod
     def is_valid_denominator(a: Fraction, denominator: int) -> bool:
-        ...  # TODO
+        return a.numerator * denominator % a.denominator == 0
 
     @staticmethod
     def lcd(a: Fraction, b: Fraction) -> int:
@@ -280,7 +344,8 @@ class Fraction:
 
 
 def main() -> None:
-    print(Fraction(1, 2) ** 2)
+    frac = Fraction(1, 2)
+    print(frac.change_denominator(4))
 
 
 if __name__ == '__main__':
