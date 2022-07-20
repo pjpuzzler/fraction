@@ -285,12 +285,29 @@ class Fraction:
         return self.numerator // self.denominator
 
     @classmethod
-    def from_string(cls, fraction_str: str) -> Fraction:
-        ...
+    def from_string(cls, fraction_str: str, reduce: bool = True) -> Fraction:
+        parts = fraction_str.split()
+        if len(parts) == 1:
+            fraction_parts = parts[0].split('/')
+            if len(fraction_parts) != 2:
+                raise ValueError('Invalid fraction string')
+
+            try:
+                return cls(int(fraction_parts[0]), int(fraction_parts[1]), reduce)
+            except ValueError:
+                raise ValueError('Invalid fraction string')
+
+        if len(parts) == 2:
+            try:
+                return cls.from_mixed_number(int(parts[0]), cls.from_string(parts[1], False), reduce)
+            except ValueError:
+                raise ValueError('Invalid fraction string')
+
+        raise ValueError('Invalid fraction string')
 
     @classmethod
-    def from_mixed_number(cls, whole_part: int, fractional_part: Fraction) -> Fraction:
-        return Fraction(whole_part * fractional_part.denominator + fractional_part.numerator, fractional_part.denominator)
+    def from_mixed_number(cls, whole_part: int, fractional_part: Fraction, reduce: bool = True) -> Fraction:
+        return Fraction(whole_part * fractional_part.denominator + fractional_part.numerator, fractional_part.denominator, reduce)
 
     @staticmethod
     def add(a: Fraction, b: Fraction, reduce: bool = True) -> Fraction:
@@ -344,9 +361,10 @@ class Fraction:
 
 
 def main() -> None:
-    frac = Fraction(1, 2)
-    print(frac.change_denominator(4))
+    print(0.1 + 0.1 - 0.2)
 
 
 if __name__ == '__main__':
     main()
+
+# float constructor
