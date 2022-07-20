@@ -220,6 +220,14 @@ class Fraction:
     def whole_part(self) -> int:
         return self.numerator // self.denominator
 
+    @classmethod
+    def from_string(cls, fraction_str: str) -> Fraction:
+        ...
+
+    @classmethod
+    def from_mixed_number(cls, whole_part: int, fractional_part: Fraction) -> Fraction:
+        return Fraction(whole_part * fractional_part.denominator + fractional_part.numerator, fractional_part.denominator)
+
     @staticmethod
     def add(a: Fraction, b: Fraction, reduce: bool = True) -> Fraction:
         if Fraction.has_common_denominator(a, b):
@@ -277,5 +285,3 @@ def main() -> None:
 
 if __name__ == '__main__':
     main()
-
-# fraction constructors from strings and mixed numbers
