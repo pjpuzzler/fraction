@@ -361,7 +361,8 @@ class Fraction:
 
 
 def main() -> None:
-    print(0.1 + 0.1 - 0.2)
+    frac = Fraction.from_string('-1 1/2')
+    print(frac)
 
 
 if __name__ == '__main__':
