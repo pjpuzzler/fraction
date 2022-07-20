@@ -10,7 +10,7 @@ class Fraction:
             self._numerator = numerator
             self._denominator = denominator
 
-        if reduce and self.denominator != 0:
+        if reduce:
             self.reduce(True)
 
     def __add__(self, __o: object) -> Fraction:
@@ -51,8 +51,8 @@ class Fraction:
 
     def __gt__(self, __o: object) -> bool:
         if isinstance(__o, Fraction):
-            common_a, common_b = Fraction.make_common(self, __o)
-            return common_a.numerator > common_b.numerator
+            a, b = Fraction.make_common(self, __o)
+            return a.numerator > b.numerator
 
         if isinstance(__o, int):
             return self.__gt__(Fraction(__o))
@@ -83,8 +83,8 @@ class Fraction:
 
     def __lt__(self, __o: object) -> bool:
         if isinstance(__o, Fraction):
-            common_a, common_b = Fraction.make_common(self, __o)
-            return common_a.numerator < common_b.numerator
+            a, b = Fraction.make_common(self, __o)
+            return a.numerator < b.numerator
 
         if isinstance(__o, int):
             return self.__lt__(Fraction(__o))
@@ -136,6 +136,9 @@ class Fraction:
 
     def reduce(self, inplace: bool = False) -> Fraction | None:
         if inplace:
+            if self.is_undefined:
+                return
+
             from math import gcd
             gcd_ = gcd(self.numerator, self.denominator)
 
@@ -196,7 +199,10 @@ class Fraction:
 
     @staticmethod
     def has_common_denominator(__a: Fraction, __b: Fraction) -> bool:
-        return __a.denominator == __b.denominator and __a.denominator != 0
+        if __a.is_undefined or __b.is_undefined:
+            raise ValueError('Cannot compare undefined fractions')
+
+        return __a.denominator == __b.denominator
 
     @staticmethod
     def is_valid_denominator(__a: Fraction, denominator: int) -> bool:
@@ -209,6 +215,10 @@ class Fraction:
 
     @staticmethod
     def make_common(__a: Fraction, __b: Fraction) -> tuple[Fraction, Fraction]:
+        if __a.is_undefined or __b.is_undefined:
+            raise ValueError(
+                'Cannot make common fraction with undefined fraction')
+
         if Fraction.has_common_denominator(__a, __b):
             return __a, __b
 
@@ -229,7 +239,7 @@ class Fraction:
 
 def main() -> None:
     frac = Fraction(1, 2)
-    print(frac <= Fraction(1, 3))
+    print(frac)
 
 
 if __name__ == '__main__':
